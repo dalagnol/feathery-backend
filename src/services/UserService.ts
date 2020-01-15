@@ -18,7 +18,7 @@ class UserService {
     }
     try {
       const { credential, password } = req.body;
-      let dbUser = await User.findOne({ user: credential });
+      let dbUser = await User.findOne({ identifier: credential });
 
       if (!dbUser) {
         dbUser = await User.findOne({ email: credential });
@@ -29,7 +29,7 @@ class UserService {
       } else {
         if (
           (req.body.credential === dbUser.email ||
-            req.body.credential === dbUser.user) &&
+            req.body.credential === dbUser.identifier) &&
           (await bcrypt.compare(password, dbUser.password))
         ) {
           const token = jwt.sign(
@@ -45,7 +45,7 @@ class UserService {
           const user = {
             id: dbUser._id,
             name: dbUser.name,
-            user: dbUser.user,
+            user: dbUser.identifier,
             email: dbUser.email
           };
 
@@ -64,7 +64,7 @@ class UserService {
 
   public async signUp(req: Request, res: Response): Promise<Response> {
     try {
-      let { user, name, email, password, gender } = req.body;
+      let { identifier, name, email, password, gender } = req.body;
 
       if (typeof gender === "string") {
         gender = await Gender.findOne({ name: `${gender ? "" : "fe"}male` });
@@ -73,7 +73,7 @@ class UserService {
       const Commons = await Group.findOne({ name: "commons" });
 
       const Creation = await User.create({
-        user,
+        identifier,
         email,
         name,
         password,

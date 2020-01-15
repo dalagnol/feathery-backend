@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 
 export interface UserModel extends Document {
   _id: any;
-  user: string;
+  identifier: string;
   name: string;
   email: string;
   password: string;
@@ -18,7 +18,7 @@ export interface UserModel extends Document {
 
 export interface AuthorModel {
   _id: any;
-  user: string;
+  identifier: string;
   email: string;
   name: string;
   type: string;
@@ -26,7 +26,7 @@ export interface AuthorModel {
 
 export interface OwnerModel {
   _id: any;
-  user: string;
+  identifier: string;
   email: string;
   name: string;
   type: string;
@@ -34,7 +34,7 @@ export interface OwnerModel {
 
 const UserSchema = new Schema(
   {
-    user: {
+    identifier: {
       type: String,
       required: true,
       unique: true
