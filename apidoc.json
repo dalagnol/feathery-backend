@@ -1,0 +1,10 @@
+{
+  "name": "feathery-backend",
+  "version": "0.1.0",
+  "description": "API Documentation for Feathery",
+  "title": "Feathery API",
+  "url": "/api/v1",
+  "template": {
+    "forceLanguage": "en"
+  }
+}
