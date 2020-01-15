@@ -3,7 +3,7 @@ import server from "./server";
 import socket from "./socket";
 import { UserModel, Socket as DBSocket } from "./models";
 
-const { PORT, SOCKET_PORT } = process.env;
+const { PORT, SOCK } = process.env;
 
 declare global {
   namespace Express {
@@ -20,7 +20,7 @@ server.listen(PORT, () => {
 async function Run() {
   const Sockets = await DBSocket.find({});
   if (!Sockets.length) {
-    socket.listen(SOCKET_PORT);
+    socket.listen(SOCK);
   } else {
     console.log("Clearing sockets...");
     await DBSocket.deleteMany({});
