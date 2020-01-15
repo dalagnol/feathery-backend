@@ -1,4 +1,4 @@
-import { PermissionModel, User, Group } from "../models";
+import { PermissionModel, User, UserModel, Group } from "../models";
 import { Request, Response, NextFunction } from "express";
 import { promisify } from "util";
 
