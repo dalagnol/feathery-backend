@@ -86,6 +86,7 @@ class UserService {
       const { message } = oof;
       if (message) {
         if (message.includes("duplicate")) {
+          console.log(message);
           return res.status(400).json({ message: "email is taken" });
         } else if (message.includes("is required")) {
           return res.status(405).json({ message });

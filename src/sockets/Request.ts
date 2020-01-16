@@ -62,7 +62,7 @@ export default class SocketRequest {
       if (user) {
         await Socket.updateOne({ socketId }, { registrant: decode.id });
         this.user = user;
-        this.UserIdentifier = user.user;
+        this.UserIdentifier = user.identifier;
       }
 
       this.Respond.toRequester({ Authenticate: "okay boomer" });
