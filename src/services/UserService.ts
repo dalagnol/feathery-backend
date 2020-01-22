@@ -16,6 +16,7 @@ class UserService {
     if (!SECRET) {
       return res.status(500).json({ message });
     }
+
     try {
       const { credential, password } = req.body;
       let dbUser = await User.findOne({ identifier: credential });
@@ -45,7 +46,7 @@ class UserService {
           const user = {
             id: dbUser._id,
             name: dbUser.name,
-            user: dbUser.identifier,
+            identifier: dbUser.identifier,
             email: dbUser.email
           };
 

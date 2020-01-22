@@ -86,7 +86,7 @@ export default async function() {
     });
 
     await User.create({
-      user: "root",
+      identifier: "root",
       name: "root",
       email: "root",
       group: Wheel,
@@ -95,7 +95,7 @@ export default async function() {
     });
 
     await User.create({
-      user: "test",
+      identifier: "test",
       name: "test",
       email: "test",
       group: Commons,
