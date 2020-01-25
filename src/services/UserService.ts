@@ -28,11 +28,7 @@ class UserService {
       if (!dbUser) {
         return res.status(401).json({ message: "User does not exist" });
       } else {
-        if (
-          (req.body.credential === dbUser.email ||
-            req.body.credential === dbUser.identifier) &&
-          (await bcrypt.compare(password, dbUser.password))
-        ) {
+        if (await bcrypt.compare(password, dbUser.password)) {
           const token = jwt.sign(
             {
               id: dbUser._id
@@ -54,7 +50,7 @@ class UserService {
         } else {
           console.log(req.body.email);
           console.log(req.body.password);
-          return res.status(401).json({ message: "Wrong email or password" });
+          return res.status(401).json({ message: "Wrong password" });
         }
       }
     } catch (oof) {
