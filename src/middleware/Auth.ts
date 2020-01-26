@@ -53,27 +53,31 @@ export default async function Auth(
       return next();
     }
   } else {
-    const [, token] = authorization.split(" ");
-    const decode: any = await promisify(jwt.verify)(token, SECRET);
+    try {
+      const [, token] = authorization.split(" ");
+      const decode: any = await promisify(jwt.verify)(token, SECRET);
 
-    const user = await User.findById(decode.id).populate([
-      {
-        path: "group",
-        select: ["name", "permissions"],
-        populate: { path: "permissions" }
-      }
-    ]);
+      const user = await User.findById(decode.id).populate([
+        {
+          path: "group",
+          select: ["name", "permissions"],
+          populate: { path: "permissions" }
+        }
+      ]);
 
-    if (user) {
-      req.user = user;
-      if (
-        user.group.permissions.find(
-          (x: PermissionModel) =>
-            warrantsMethod(x.methods, method) && warrantsRoute(x.uri, path)
-        )
-      ) {
-        return next();
+      if (user) {
+        req.user = user;
+        if (
+          user.group.permissions.find(
+            (x: PermissionModel) =>
+              warrantsMethod(x.methods, method) && warrantsRoute(x.uri, path)
+          )
+        ) {
+          return next();
+        }
       }
+    } catch (oof) {
+      return res.status(401).json({ message: "expired token" });
     }
   }
   return res.status(401).json({ message: "unauthorised" });

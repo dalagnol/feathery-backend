@@ -19,20 +19,18 @@ class UserService {
 
     try {
       const { credential, password } = req.body;
-      let dbUser = await User.findOne({ identifier: credential });
+      let dbUser = await User.findOne({ identifier: credential }).populate(
+        "group"
+      );
 
       if (!dbUser) {
-        dbUser = await User.findOne({ email: credential });
+        dbUser = await User.findOne({ email: credential }).populate("group");
       }
 
       if (!dbUser) {
         return res.status(401).json({ message: "User does not exist" });
       } else {
-        if (
-          (req.body.credential === dbUser.email ||
-            req.body.credential === dbUser.identifier) &&
-          (await bcrypt.compare(password, dbUser.password))
-        ) {
+        if (await bcrypt.compare(password, dbUser.password)) {
           const token = jwt.sign(
             {
               id: dbUser._id
@@ -47,14 +45,15 @@ class UserService {
             id: dbUser._id,
             name: dbUser.name,
             identifier: dbUser.identifier,
-            email: dbUser.email
+            email: dbUser.email,
+            group: dbUser.group.name
           };
 
           return res.status(200).json({ token, user });
         } else {
           console.log(req.body.email);
           console.log(req.body.password);
-          return res.status(401).json({ message: "Wrong email or password" });
+          return res.status(401).json({ message: "Wrong password" });
         }
       }
     } catch (oof) {
@@ -64,6 +63,10 @@ class UserService {
   }
 
   public async signUp(req: Request, res: Response): Promise<Response> {
+    if (!SECRET) {
+      return res.status(500).json({ message });
+    }
+
     try {
       let { identifier, name, email, password, gender } = req.body;
 
@@ -73,7 +76,7 @@ class UserService {
 
       const Commons = await Group.findOne({ name: "commons" });
 
-      const Creation = await User.create({
+      const Creation: any = await User.create({
         identifier,
         email,
         name,
@@ -82,7 +85,25 @@ class UserService {
         group: Commons
       });
 
-      return res.status(201).json(Creation);
+      const token = jwt.sign(
+        {
+          id: Creation._id
+        },
+        SECRET,
+        {
+          expiresIn: "60 minutes"
+        }
+      );
+
+      const user = {
+        id: Creation._id,
+        name: Creation.name,
+        identifier: Creation.identifier,
+        email: Creation.email,
+        group: Creation.group.name
+      };
+
+      return res.status(201).json({ token, user });
     } catch (oof) {
       const { message } = oof;
       if (message) {
