@@ -75,8 +75,13 @@ export default async function() {
       permissions: [SelfEditAccess, PingAccess]
     });
 
+    const Creators = await Group.create({
+      name: "creators",
+      permissions: [SelfEditAccess, PingAccess]
+    });
+
     const Admins = await Group.create({
-      name: "administration",
+      name: "admins",
       permissions: [SelfEditAccess, OthersEditAccess, PingAccess]
     });
 
@@ -95,12 +100,30 @@ export default async function() {
     });
 
     await User.create({
-      identifier: "test",
-      name: "test",
-      email: "test",
+      identifier: "admin",
+      name: "admins",
+      email: "admin",
+      group: Admins,
+      gender: Male,
+      password: "admin"
+    });
+
+    await User.create({
+      identifier: "creator",
+      name: "creators",
+      email: "creator",
+      group: Creators,
+      gender: Male,
+      password: "creator"
+    });
+
+    await User.create({
+      identifier: "common",
+      name: "commoner",
+      email: "pleb",
       group: Commons,
       gender: Male,
-      password: "test"
+      password: "common"
     });
   }
 }
