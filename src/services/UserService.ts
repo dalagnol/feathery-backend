@@ -19,10 +19,12 @@ class UserService {
 
     try {
       const { credential, password } = req.body;
-      let dbUser = await User.findOne({ identifier: credential });
+      let dbUser = await User.findOne({ identifier: credential }).populate(
+        "group"
+      );
 
       if (!dbUser) {
-        dbUser = await User.findOne({ email: credential });
+        dbUser = await User.findOne({ email: credential }).populate("group");
       }
 
       if (!dbUser) {
@@ -43,7 +45,8 @@ class UserService {
             id: dbUser._id,
             name: dbUser.name,
             identifier: dbUser.identifier,
-            email: dbUser.email
+            email: dbUser.email,
+            group: dbUser.group.name
           };
 
           return res.status(200).json({ token, user });
@@ -96,7 +99,8 @@ class UserService {
         id: Creation._id,
         name: Creation.name,
         identifier: Creation.identifier,
-        email: Creation.email
+        email: Creation.email,
+        group: Creation.group.name
       };
 
       return res.status(201).json({ token, user });
