@@ -60,6 +60,10 @@ class UserService {
   }
 
   public async signUp(req: Request, res: Response): Promise<Response> {
+    if (!SECRET) {
+      return res.status(500).json({ message });
+    }
+
     try {
       let { identifier, name, email, password, gender } = req.body;
 
@@ -69,7 +73,7 @@ class UserService {
 
       const Commons = await Group.findOne({ name: "commons" });
 
-      const Creation = await User.create({
+      const Creation: any = await User.create({
         identifier,
         email,
         name,
@@ -78,7 +82,24 @@ class UserService {
         group: Commons
       });
 
-      return res.status(201).json(Creation);
+      const token = jwt.sign(
+        {
+          id: Creation._id
+        },
+        SECRET,
+        {
+          expiresIn: "60 minutes"
+        }
+      );
+
+      const user = {
+        id: Creation._id,
+        name: Creation.name,
+        identifier: Creation.identifier,
+        email: Creation.email
+      };
+
+      return res.status(201).json({ token, user });
     } catch (oof) {
       const { message } = oof;
       if (message) {
