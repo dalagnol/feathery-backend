@@ -2,12 +2,14 @@ import { User, UserModel, Group, GroupModel } from "../models";
 import Request from "./Request";
 
 import { System } from "./modules";
+import { Messaging } from "./modules";
 
 export class SocketConnections {
   private clients: Array<Request>;
   private groups: Array<GroupModel>;
 
   public System: System;
+  public Messaging: Messaging;
 
   constructor() {
     this.clients = [];
@@ -15,6 +17,7 @@ export class SocketConnections {
     this.load();
 
     this.System = new System();
+    this.Messaging = new Messaging();
   }
 
   public connect(conn: any, server: any) {
