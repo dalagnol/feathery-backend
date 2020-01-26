@@ -81,7 +81,7 @@ export default async function() {
     });
 
     const Admins = await Group.create({
-      name: "administration",
+      name: "admins",
       permissions: [SelfEditAccess, OthersEditAccess, PingAccess]
     });
 
