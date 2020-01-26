@@ -35,6 +35,13 @@ Server.on("connection", async function(conn: any) {
     console.log(`${user()} has broadcasted "${message}"`);
   });
 
+  conn.on("Message", (room: string, message: any) => {
+    Socket.Messaging.messageRoom(room, message);
+
+    // For testing
+    console.log(`${user()} has sent`, message, ` to "${room}"`);
+  });
+
   conn.on("Join", (channelName: string) => {
     conn.join(channelName);
 
