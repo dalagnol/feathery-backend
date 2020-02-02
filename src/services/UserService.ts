@@ -53,7 +53,8 @@ class UserService {
             name: dbUser.name,
             identifier: dbUser.identifier,
             email: dbUser.email,
-            group: dbUser.group.name
+            group: dbUser.group.name,
+            picture: dbUser.picture
           };
 
           return res.status(200).json({ token, user });
@@ -114,7 +115,8 @@ class UserService {
         name: Creation.name,
         identifier: Creation.identifier,
         email: Creation.email,
-        group: Creation.group.name
+        group: Creation.group.name,
+        picture: Creation.picture
       };
 
       return res.status(201).json({ token, user });
