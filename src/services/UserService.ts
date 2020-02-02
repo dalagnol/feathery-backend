@@ -79,11 +79,20 @@ class UserService {
         gender = await Gender.findOne({ name: `${gender ? "" : "fe"}male` });
       }
 
+      if (!email.includes("@") || !email.includes(".")) {
+        throw new Error("email is required");
+      }
+      const [address, domain] = email.split("@");
+      let EmailAddress = await Email.findOne({ address, domain });
+      if (!EmailAddress) {
+        EmailAddress = await Email.create({ address, domain });
+      }
+
       const Commons = await Group.findOne({ name: "commons" });
 
       const Creation: any = await User.create({
         identifier,
-        email,
+        email: EmailAddress,
         name,
         password,
         gender,
@@ -128,7 +137,7 @@ class UserService {
 
   public async update(req: Request, res: Response): Promise<Response> {
     try {
-      const { name, email, password } = req.body;
+      const { name, email, picture, password } = req.body;
       let EmailAddress;
       if (email) {
         const [address, domain] = email.split("@");
@@ -151,6 +160,7 @@ class UserService {
             {
               name,
               email: EmailAddress,
+              picture,
               password
             },
             { new: true }
@@ -162,7 +172,8 @@ class UserService {
           req.params.id,
           {
             name,
-            email: EmailAddress
+            email: EmailAddress,
+            picture
           },
           { new: true }
         );

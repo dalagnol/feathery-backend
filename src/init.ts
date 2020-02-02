@@ -1,4 +1,4 @@
-import { Gender, Permission, User, Group } from "./models";
+import { Gender, Permission, User, Email, Group } from "./models";
 
 export default async function() {
   const perms = await Permission.find({});
@@ -90,10 +90,30 @@ export default async function() {
       permissions: [LoginAccess, SignUpAccess, PingAccess]
     });
 
+    const rootEmail = await Email.create({
+      address: "root",
+      domain: "moresco.local"
+    });
+
+    const adminEmail = await Email.create({
+      address: "admin",
+      domain: "moresco.local"
+    });
+
+    const creatorEmail = await Email.create({
+      address: "creator",
+      domain: "moresco.local"
+    });
+
+    const commonerEmail = await Email.create({
+      address: "commons",
+      domain: "moresco.local"
+    });
+
     await User.create({
       identifier: "root",
       name: "root",
-      email: "root",
+      email: rootEmail,
       group: Wheel,
       gender: Male,
       password: "root"
@@ -102,7 +122,7 @@ export default async function() {
     await User.create({
       identifier: "admin",
       name: "admins",
-      email: "admin",
+      email: adminEmail,
       group: Admins,
       gender: Male,
       password: "admin"
@@ -111,7 +131,7 @@ export default async function() {
     await User.create({
       identifier: "creator",
       name: "creators",
-      email: "creator",
+      email: creatorEmail,
       group: Creators,
       gender: Male,
       password: "creator"
@@ -120,7 +140,7 @@ export default async function() {
     await User.create({
       identifier: "common",
       name: "commoner",
-      email: "pleb",
+      email: commonerEmail,
       group: Commons,
       gender: Male,
       password: "common"
