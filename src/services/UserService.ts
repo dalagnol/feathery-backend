@@ -1,4 +1,4 @@
-import { Group, User, Gender } from "../models";
+import { Group, User, Gender, Email } from "../models";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
@@ -19,12 +19,19 @@ class UserService {
 
     try {
       const { credential, password } = req.body;
-      let dbUser = await User.findOne({ identifier: credential }).populate(
-        "group"
-      );
 
-      if (!dbUser) {
-        dbUser = await User.findOne({ email: credential }).populate("group");
+      let dbUser;
+
+      if (credential.includes("@") && credential.includes(".")) {
+        const [address, domain] = credential.split("@");
+        const email = await Email.findOne({ address, domain });
+        if (email) {
+          dbUser = await User.findOne({ email: credential }).populate("group");
+        }
+      } else {
+        dbUser = await User.findOne({ identifier: credential }).populate(
+          "group"
+        );
       }
 
       if (!dbUser) {
@@ -51,8 +58,6 @@ class UserService {
 
           return res.status(200).json({ token, user });
         } else {
-          console.log(req.body.email);
-          console.log(req.body.password);
           return res.status(401).json({ message: "Wrong password" });
         }
       }
@@ -124,6 +129,17 @@ class UserService {
   public async update(req: Request, res: Response): Promise<Response> {
     try {
       const { name, email, password } = req.body;
+      let EmailAddress;
+      if (email) {
+        const [address, domain] = email.split("@");
+        EmailAddress = await Email.findOne({ address, domain });
+        if (!EmailAddress) {
+          EmailAddress = await Email.create({ address, domain });
+        }
+      } else {
+        EmailAddress = (await User.findById(req.params.id))?.email;
+      }
+
       if (password) {
         if (password.length < 6) {
           return res.status(400).json({
@@ -134,7 +150,7 @@ class UserService {
             req.params.id,
             {
               name,
-              email,
+              email: EmailAddress,
               password
             },
             { new: true }
@@ -146,7 +162,7 @@ class UserService {
           req.params.id,
           {
             name,
-            email
+            email: EmailAddress
           },
           { new: true }
         );

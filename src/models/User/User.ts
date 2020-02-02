@@ -1,5 +1,7 @@
 import { GroupModel } from "../System/Group";
 import { GenderModel } from "./Gender";
+import { EmailModel } from "./Email";
+import { PhoneModel } from "./Phone";
 import { Document, Schema, Model, model } from "mongoose";
 import bcrypt from "bcryptjs";
 
@@ -7,7 +9,8 @@ export interface UserModel extends Document {
   _id: any;
   identifier: string;
   name: string;
-  email: string;
+  email: EmailModel;
+  phone?: PhoneModel;
   password: string;
   gender: GenderModel;
   active: boolean;
@@ -44,9 +47,13 @@ const UserSchema = new Schema(
       required: true
     },
     email: {
-      type: String,
-      required: true,
-      unique: true
+      type: Schema.Types.ObjectId,
+      ref: "Email",
+      required: true
+    },
+    phone: {
+      type: Schema.Types.ObjectId,
+      ref: "Phone"
     },
     gender: {
       type: Schema.Types.ObjectId,
