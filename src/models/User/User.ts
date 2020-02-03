@@ -92,3 +92,8 @@ UserSchema.post("save", async (doc: UserModel) => {
 });
 
 export const User: Model<UserModel> = model<UserModel>("User", UserSchema);
+
+User.collection.createIndex(["phone"], {
+  partialFilterExpression: { phone: { $exists: true } },
+  unique: true
+});

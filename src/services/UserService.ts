@@ -22,7 +22,7 @@ class UserService {
       const { credential, password } = req.body;
       
       const user = await getUserByCredential(
-        credential, ['password']
+        credential, password
       );
       
       if (!user) {
@@ -30,7 +30,7 @@ class UserService {
           message: "User does not exist"
         });
       } else {
-        if (await bcrypt.compare(password, dbUser.password)) {
+        if (await bcrypt.compare(password, user.password)) {
           const token = makeToken({ id: user._id });
           return res.status(200).json({ token, user });
         } else {
