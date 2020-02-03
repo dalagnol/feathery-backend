@@ -3,6 +3,10 @@ import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
+import { getUserByCredential, token as makeToken } from "./User/getters";
+
+import Create from "./creator";
+
 const { SECRET } = process.env;
 
 if (!SECRET) {
@@ -13,60 +17,26 @@ const message = "Could not process your request at this time";
 
 class UserService {
   public async authenticate(req: Request, res: Response): Promise<Response> {
-    if (!SECRET) {
-      return res.status(500).json({ message });
-    }
-
+  
     try {
       const { credential, password } = req.body;
-
-      let dbUser;
-
-      if (credential.includes("@") && credential.includes(".")) {
-        const [address, domain] = credential.split("@");
-        const email = await Email.findOne({ address, domain });
-        if (email) {
-          dbUser = await User.findOne({ email: credential }).populate([
-            "group",
-            "email",
-            "gender"
-          ]);
-        }
-      } else {
-        dbUser = await User.findOne({ identifier: credential }).populate([
-          "group",
-          "email",
-          "gender"
-        ]);
-      }
-
-      if (!dbUser) {
-        return res.status(401).json({ message: "User does not exist" });
+      
+      const user = await getUserByCredential(
+        credential, ['password']
+      );
+      
+      if (!user) {
+        return res.status(401).json({ 
+          message: "User does not exist"
+        });
       } else {
         if (await bcrypt.compare(password, dbUser.password)) {
-          const token = jwt.sign(
-            {
-              id: dbUser._id
-            },
-            SECRET,
-            {
-              expiresIn: "60 minutes"
-            }
-          );
-
-          const user = {
-            id: dbUser._id,
-            name: dbUser.name,
-            identifier: dbUser.identifier,
-            email: dbUser.email.address + "@" + dbUser.email.domain,
-            group: dbUser.group.name,
-            gender: dbUser.gender.name,
-            picture: dbUser.picture
-          };
-
+          const token = makeToken({ id: user._id });
           return res.status(200).json({ token, user });
         } else {
-          return res.status(401).json({ message: "Wrong password" });
+          return res.status(401).json({ 
+            message: "Wrong password"
+          });
         }
       }
     } catch (oof) {
@@ -76,57 +46,9 @@ class UserService {
   }
 
   public async signUp(req: Request, res: Response): Promise<Response> {
-    if (!SECRET) {
-      return res.status(500).json({ message });
-    }
-
     try {
-      let { identifier, name, email, password, gender } = req.body;
-
-      if (typeof gender === "string") {
-        gender = await Gender.findOne({ name: `${gender ? "" : "fe"}male` });
-      }
-
-      if (!email.includes("@") || !email.includes(".")) {
-        throw new Error("email is required");
-      }
-      let [address, domain] = email.split("@");
-      let EmailAddress = await Email.findOne({ address, domain });
-      if (!EmailAddress) {
-        EmailAddress = await Email.create({ address, domain });
-      }
-
-      const Commons = await Group.findOne({ name: "commons" });
-
-      const Creation: any = await User.create({
-        identifier,
-        email: EmailAddress,
-        name,
-        password,
-        gender,
-        group: Commons
-      });
-
-      const token = jwt.sign(
-        {
-          id: Creation._id
-        },
-        SECRET,
-        {
-          expiresIn: "60 minutes"
-        }
-      );
-
-      const user = {
-        id: Creation._id,
-        name: Creation.name,
-        identifier: Creation.identifier,
-        email: Creation.email.address + "@" + Creation.email.domain,
-        group: Creation.group.name,
-        gender: Creation.gender.name,
-        picture: Creation.picture
-      };
-
+      const user = await Create(req.body);
+      const token = await makeToken({ id: user.id });
       return res.status(201).json({ token, user });
     } catch (oof) {
       const { message } = oof;
