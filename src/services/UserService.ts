@@ -26,12 +26,18 @@ class UserService {
         const [address, domain] = credential.split("@");
         const email = await Email.findOne({ address, domain });
         if (email) {
-          dbUser = await User.findOne({ email: credential }).populate("group");
+          dbUser = await User.findOne({ email: credential }).populate([
+            "group",
+            "email",
+            "gender"
+          ]);
         }
       } else {
-        dbUser = await User.findOne({ identifier: credential }).populate(
-          "group"
-        );
+        dbUser = await User.findOne({ identifier: credential }).populate([
+          "group",
+          "email",
+          "gender"
+        ]);
       }
 
       if (!dbUser) {
@@ -52,8 +58,9 @@ class UserService {
             id: dbUser._id,
             name: dbUser.name,
             identifier: dbUser.identifier,
-            email: dbUser.email,
+            email: dbUser.email.address + "@" + dbUser.email.domain,
             group: dbUser.group.name,
+            gender: dbUser.gender.name,
             picture: dbUser.picture
           };
 
@@ -83,7 +90,7 @@ class UserService {
       if (!email.includes("@") || !email.includes(".")) {
         throw new Error("email is required");
       }
-      const [address, domain] = email.split("@");
+      let [address, domain] = email.split("@");
       let EmailAddress = await Email.findOne({ address, domain });
       if (!EmailAddress) {
         EmailAddress = await Email.create({ address, domain });
@@ -114,8 +121,9 @@ class UserService {
         id: Creation._id,
         name: Creation.name,
         identifier: Creation.identifier,
-        email: Creation.email,
+        email: Creation.email.address + "@" + Creation.email.domain,
         group: Creation.group.name,
+        gender: Creation.gender.name,
         picture: Creation.picture
       };
 

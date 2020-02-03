@@ -50,10 +50,12 @@ const UserSchema = new Schema(
     email: {
       type: Schema.Types.ObjectId,
       ref: "Email",
+      unique: true,
       required: true
     },
     phone: {
       type: Schema.Types.ObjectId,
+      unique: true,
       ref: "Phone"
     },
     gender: {
