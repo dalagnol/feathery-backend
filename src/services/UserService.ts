@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 
 import { getUserByCredential, token as makeToken } from "./User/getters";
 
-import Create from "./creator";
+import Create from "./User/creator";
 
 const { SECRET } = process.env;
 
