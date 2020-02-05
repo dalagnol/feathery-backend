@@ -28,8 +28,12 @@ export default async function(form: any) {
   }
 
   let group;
-  if (!(await Group.findById(form.group))) {
-    group = await Group.findOne({ name: form.group });
+  if (form.group) {
+    if (!(await Group.findById(form.group))) {
+      group = await Group.findOne({ name: form.group });
+    }
+  } else {
+    group = await Group.findOne({ name: "commons" });
   }
 
   let Creation: any = await User.create({
