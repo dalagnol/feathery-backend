@@ -17,24 +17,22 @@ const message = "Could not process your request at this time";
 
 class UserService {
   public async authenticate(req: Request, res: Response): Promise<Response> {
-  
     try {
       const { credential, password } = req.body;
-      
-      const user = await getUserByCredential(
-        credential, password
-      );
-      
+
+      let user = await getUserByCredential(credential, ["password"]);
+
       if (!user) {
-        return res.status(401).json({ 
+        return res.status(401).json({
           message: "User does not exist"
         });
       } else {
         if (await bcrypt.compare(password, user.password)) {
-          const token = makeToken({ id: user._id });
+          delete user["password"];
+          const token = await makeToken({ id: user._id });
           return res.status(200).json({ token, user });
         } else {
-          return res.status(401).json({ 
+          return res.status(401).json({
             message: "Wrong password"
           });
         }
