@@ -29,7 +29,7 @@ class UserService {
       } else {
         if (await bcrypt.compare(password, user.password)) {
           delete user["password"];
-          const token = await makeToken({ id: user._id });
+          const token = await makeToken({ id: user.id });
           return res.status(200).json({ token, user });
         } else {
           return res.status(401).json({
@@ -67,7 +67,7 @@ class UserService {
 
   public async update(req: Request, res: Response): Promise<Response> {
     try {
-      const { name, email, picture, password } = req.body;
+      const { name, identifier, email, gender, picture, password, phone } = req.body;
       let EmailAddress;
       if (email) {
         const [address, domain] = email.split("@");
@@ -89,9 +89,10 @@ class UserService {
             req.params.id,
             {
               name,
+              identifier,
               email: EmailAddress,
               picture,
-              password
+              phone
             },
             { new: true }
           );
@@ -102,8 +103,9 @@ class UserService {
           req.params.id,
           {
             name,
+            identifier,
             email: EmailAddress,
-            picture
+            picture, phone
           },
           { new: true }
         );
