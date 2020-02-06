@@ -1,6 +1,6 @@
 import { GroupModel } from "../System/Group";
 import { GenderModel } from "./Gender";
-import { Email, EmailModel } from "./Email";
+import { EmailModel } from "./Email";
 import { PhoneModel } from "./Phone";
 import { Document, Schema, Model, model } from "mongoose";
 import bcrypt from "bcryptjs";
@@ -55,8 +55,8 @@ const UserSchema = new Schema(
     },
     phone: {
       type: Schema.Types.ObjectId,
-      unique: true,
-      ref: "Phone"
+      ref: "Phone",
+      unique: true
     },
     gender: {
       type: Schema.Types.ObjectId,

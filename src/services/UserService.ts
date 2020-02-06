@@ -1,4 +1,4 @@
-import { Group, User, Gender, Email } from "../models";
+import { Group, User, Gender, Email, Phone } from "../models";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
@@ -67,8 +67,9 @@ class UserService {
 
   public async update(req: Request, res: Response): Promise<Response> {
     try {
-      const { name, identifier, email, gender, picture, password, phone } = req.body;
+      const { name, identifier, email, picture, password, phone } = req.body;
       let EmailAddress;
+      let PhoneNo;
       if (email) {
         const [address, domain] = email.split("@");
         EmailAddress = await Email.findOne({ address, domain });
@@ -77,6 +78,16 @@ class UserService {
         }
       } else {
         EmailAddress = (await User.findById(req.params.id))?.email;
+      }
+
+      if (phone) {
+        const [ddi, number] = phone.split(" ");
+        PhoneNo = await Phone.findOne({ ddi, number });
+        if (!PhoneNo) {
+          PhoneNo = await Phone.create({ ddi, number });
+        }
+      } else {
+        PhoneNo = "";
       }
 
       if (password) {
@@ -92,7 +103,7 @@ class UserService {
               identifier,
               email: EmailAddress,
               picture,
-              phone
+              phone: PhoneNo,
             },
             { new: true }
           );
@@ -105,7 +116,8 @@ class UserService {
             name,
             identifier,
             email: EmailAddress,
-            picture, phone
+            picture, 
+            phone,
           },
           { new: true }
         );

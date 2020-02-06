@@ -9,7 +9,7 @@ if (!SECRET) {
   throw new Error("Missing SECRET in process environment");
 }
 
-export const completely = ["group", "email", "gender"];
+export const completely = ["group", "email", "gender", "phone"];
 
 export async function getUserByCredential(
   credential: string,
