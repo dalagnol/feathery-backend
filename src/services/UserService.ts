@@ -116,7 +116,7 @@ class UserService {
           return res.status(200).json({ user });
         }
       } else {
-        let user: any = await User.findByIdAndUpdate(
+        let dbuser: any = await User.findByIdAndUpdate(
           req.params.id,
           {
             name,
@@ -128,11 +128,16 @@ class UserService {
           { new: true }
         );
 
-        user = await User.findOne({ _id: user!._id }).populate(completely);
+        dbuser = await User.findOne({ _id: dbuser!._id }).populate(completely);
+
+        let user = dbuser._doc;
 
         for (let key of completely) {
           user[key] = prepare(user[key]);
         }
+
+        user.id = user._id;
+        delete user._id;
 
         return res.status(200).json({ user });
       }
