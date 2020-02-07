@@ -1,10 +1,15 @@
+import { UserModel } from "./../models/User/User";
 import { Group, User, Gender, Email, Phone } from "../models";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { prepare } from "../utils";
 
-import { getUserByCredential, token as makeToken } from "./User/getters";
+import {
+  getUserByCredential,
+  token as makeToken,
+  completely
+} from "./User/getters";
 
 import Create from "./User/creator";
 
@@ -111,8 +116,7 @@ class UserService {
           return res.status(200).json({ user });
         }
       } else {
-        console.log(PhoneNo);
-        let user = await User.findByIdAndUpdate(
+        let user: any = await User.findByIdAndUpdate(
           req.params.id,
           {
             name,
@@ -124,7 +128,11 @@ class UserService {
           { new: true }
         );
 
-        console.log(user?.email);
+        user = await User.findOne({ _id: user!._id }).populate(completely);
+
+        for (let key of completely) {
+          user[key] = prepare(user[key]);
+        }
 
         return res.status(200).json({ user });
       }
