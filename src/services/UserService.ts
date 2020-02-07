@@ -2,6 +2,7 @@ import { Group, User, Gender, Email, Phone } from "../models";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import { prepare } from "../utils";
 
 import { getUserByCredential, token as makeToken } from "./User/getters";
 
@@ -103,24 +104,28 @@ class UserService {
               identifier,
               email: EmailAddress,
               picture,
-              phone: PhoneNo,
+              phone: PhoneNo
             },
             { new: true }
           );
           return res.status(200).json({ user });
         }
       } else {
-        const user = await User.findByIdAndUpdate(
+        console.log(PhoneNo);
+        let user = await User.findByIdAndUpdate(
           req.params.id,
           {
             name,
             identifier,
             email: EmailAddress,
-            picture, 
-            phone,
+            picture,
+            phone: PhoneNo
           },
           { new: true }
         );
+
+        console.log(user?.email);
+
         return res.status(200).json({ user });
       }
     } catch (oof) {
