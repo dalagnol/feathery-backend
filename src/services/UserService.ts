@@ -109,7 +109,8 @@ class UserService {
               identifier,
               email: EmailAddress,
               picture,
-              phone: PhoneNo
+              phone: PhoneNo,
+              password
             },
             { new: true }
           );
@@ -138,6 +139,7 @@ class UserService {
 
         user.id = user._id;
         delete user._id;
+        delete user.password;
 
         return res.status(200).json({ user });
       }
