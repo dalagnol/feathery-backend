@@ -76,6 +76,7 @@ class UserService {
       const { name, identifier, email, picture, password, phone } = req.body;
       let EmailAddress;
       let PhoneNo;
+      let Password = await bcrypt.hash(password, 8);
       if (email) {
         const [address, domain] = email.split("@");
         EmailAddress = await Email.findOne({ address, domain });
@@ -102,7 +103,7 @@ class UserService {
             message: "your password must have more than six characters"
           });
         } else {
-          const user = await User.findByIdAndUpdate(
+          let dbuser: any = await User.findByIdAndUpdate(
             req.params.id,
             {
               name,
@@ -110,10 +111,22 @@ class UserService {
               email: EmailAddress,
               picture,
               phone: PhoneNo,
-              password
+              password: Password
             },
             { new: true }
           );
+
+          dbuser = await User.findOne({ _id: dbuser._id }).populate(completely);
+
+          let user = dbuser._doc;
+          for (let key of completely) {
+            user[key] = prepare(user[key]);
+          }
+
+          user.id = user._id;
+          delete user._id;
+          delete user.password;
+
           return res.status(200).json({ user });
         }
       } else {
@@ -129,7 +142,7 @@ class UserService {
           { new: true }
         );
 
-        dbuser = await User.findOne({ _id: dbuser!._id }).populate(completely);
+        dbuser = await User.findOne({ _id: dbuser._id }).populate(completely);
 
         let user = dbuser._doc;
 
