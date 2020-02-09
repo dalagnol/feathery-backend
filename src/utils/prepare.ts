@@ -5,12 +5,15 @@ export default function(entity: any) {
 
   const { address, domain } = entity;
   const { ddi, number } = entity;
+  const { name } = entity;
 
   if (address && domain) {
     return `${address}@${domain}`;
   } else if (ddi && number) {
     return `${ddi} ${number}`;
-  } else {
+  } else if (name) {
     return entity.name;
+  } else {
+    return entity;
   }
 }

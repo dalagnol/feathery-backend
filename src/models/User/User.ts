@@ -41,17 +41,23 @@ const UserSchema = new Schema(
     identifier: {
       type: String,
       required: true,
-      unique: true
+      unique: true,
+      minlength: 1,
+      maxlength: 100
     },
     name: {
       type: String,
-      required: true
+      required: true,
+      minlength: 2,
+      maxlength: 100
     },
     email: {
       type: Schema.Types.ObjectId,
       ref: "Email",
       unique: true,
-      required: true
+      required: true,
+      minlength: 5,
+      maxlength: 120
     },
     phone: {
       type: Schema.Types.ObjectId,
@@ -78,7 +84,9 @@ const UserSchema = new Schema(
     },
     password: {
       type: String,
-      required: true
+      required: true,
+      minlength: 6,
+      maxlength: 120
     }
   },
   {

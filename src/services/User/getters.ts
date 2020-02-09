@@ -1,5 +1,5 @@
-import { Group, User, Gender, Email } from "../../models";
-import { Request, Response } from "express";
+import { UserModel } from "./../../models/User/User";
+import { User, Email } from "../../models";
 import { prepare } from "../../utils";
 import jwt from "jsonwebtoken";
 
@@ -14,8 +14,9 @@ export const completely = ["group", "email", "gender", "phone"];
 export async function getUserByCredential(
   credential: string,
   entities: any = []
-) {
+): Promise<UserModel | null> {
   let DBUser: any;
+
   if (credential.includes("@") && credential.includes(".")) {
     const [address, domain] = credential.split("@");
     const email = await Email.findOne({ address, domain });
@@ -44,12 +45,12 @@ export async function getUserByCredential(
     picture: DBUser.picture
   };
 
-  for (let key of entities) {
-    result[key] = DBUser[key];
-  }
-
   for (let key of completely) {
     result[key] = entities[key] ? DBUser[key] : prepare(DBUser[key]);
+  }
+
+  for (let key of entities) {
+    result[key] = DBUser[key];
   }
 
   return result;

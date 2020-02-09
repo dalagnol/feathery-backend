@@ -1,7 +1,5 @@
-import { UserModel } from "./../models/User/User";
 import { Group, User, Gender, Email, Phone } from "../models";
 import { Request, Response } from "express";
-import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { prepare } from "../utils";
 
@@ -10,6 +8,8 @@ import {
   token as makeToken,
   completely
 } from "./User/getters";
+
+import { updateUserById as Update } from "./User/updater";
 
 import Create from "./User/creator";
 
@@ -28,14 +28,17 @@ class UserService {
 
       let user = await getUserByCredential(credential, ["password"]);
 
+      console.log(user);
+
       if (!user) {
         return res.status(401).json({
           message: "User does not exist"
         });
       } else {
         if (await bcrypt.compare(password, user.password)) {
-          delete user["password"];
+          delete user.password;
           const token = await makeToken({ id: user.id });
+
           return res.status(200).json({ token, user });
         } else {
           return res.status(401).json({
@@ -58,7 +61,6 @@ class UserService {
       const { message } = oof;
       if (message) {
         if (message.includes("duplicate")) {
-          console.log(message);
           return res.status(400).json({ message: "email is taken" });
         } else if (message.includes("is required")) {
           return res.status(405).json({ message });
@@ -73,92 +75,28 @@ class UserService {
 
   public async update(req: Request, res: Response): Promise<Response> {
     try {
-      const { name, identifier, email, picture, password, phone } = req.body;
-      let EmailAddress;
-      let PhoneNo;
-      let Password = await bcrypt.hash(password, 8);
-      if (email) {
-        const [address, domain] = email.split("@");
-        EmailAddress = await Email.findOne({ address, domain });
-        if (!EmailAddress) {
-          EmailAddress = await Email.create({ address, domain });
-        }
-      } else {
-        EmailAddress = (await User.findById(req.params.id))?.email;
+      const user = await Update(req.params.id, req.body);
+
+      if (!user) {
+        return res.status(500).json({
+          message: "oops"
+        });
       }
 
-      if (phone) {
-        const [ddi, number] = phone.split(" ");
-        PhoneNo = await Phone.findOne({ ddi, number });
-        if (!PhoneNo) {
-          PhoneNo = await Phone.create({ ddi, number });
-        }
-      } else {
-        PhoneNo = "";
-      }
-
-      if (password) {
-        if (password.length < 6) {
-          return res.status(400).json({
-            message: "your password must have more than six characters"
-          });
-        } else {
-          let dbuser: any = await User.findByIdAndUpdate(
-            req.params.id,
-            {
-              name,
-              identifier,
-              email: EmailAddress,
-              picture,
-              phone: PhoneNo,
-              password: Password
-            },
-            { new: true }
-          );
-
-          dbuser = await User.findOne({ _id: dbuser._id }).populate(completely);
-
-          let user = dbuser._doc;
-          for (let key of completely) {
-            user[key] = prepare(user[key]);
-          }
-
-          user.id = user._id;
-          delete user._id;
-          delete user.password;
-
-          return res.status(200).json({ user });
-        }
-      } else {
-        let dbuser: any = await User.findByIdAndUpdate(
-          req.params.id,
-          {
-            name,
-            identifier,
-            email: EmailAddress,
-            picture,
-            phone: PhoneNo
-          },
-          { new: true }
-        );
-
-        dbuser = await User.findOne({ _id: dbuser._id }).populate(completely);
-
-        let user = dbuser._doc;
-
-        for (let key of completely) {
-          user[key] = prepare(user[key]);
-        }
-
-        user.id = user._id;
-        delete user._id;
-        delete user.password;
-
-        return res.status(200).json({ user });
-      }
+      return res.status(200).json({
+        id: user._id,
+        name: user.name,
+        identifier: user.identifier,
+        picture: user.picture,
+        group: prepare(user.group),
+        email: prepare(user.email),
+        gender: prepare(user.gender),
+        phone: prepare(user.phone)
+      });
     } catch (oof) {
-      const { message } = oof;
-      return res.status(500).json({ message });
+      return res.status(500).json({
+        message: "oops"
+      });
     }
   }
 
