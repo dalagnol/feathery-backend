@@ -110,13 +110,23 @@ export default async function() {
       domain: "moresco.local"
     });
 
+    const morescoEmail = await Email.create({
+      address: "moresco",
+      domain: "icloud.com"
+    });
+
+    const dalagnolEmail = await Email.create({
+      address: "dalagnol",
+      domain: "icloud.com"
+    });
+
     await User.create({
       identifier: "root",
       name: "root",
       email: rootEmail,
       group: Wheel,
       gender: Male,
-      password: "root"
+      password: "rootroot"
     });
 
     await User.create({
@@ -125,7 +135,7 @@ export default async function() {
       email: adminEmail,
       group: Admins,
       gender: Male,
-      password: "admin"
+      password: "adminadmin"
     });
 
     await User.create({
@@ -144,6 +154,24 @@ export default async function() {
       group: Commons,
       gender: Male,
       password: "common"
+    });
+
+    await User.create({
+      identifier: "moresco",
+      name: "Moresco",
+      email: morescoEmail,
+      group: Admins,
+      gender: Male,
+      password: "Adimoadimo"
+    });
+
+    await User.create({
+      identifier: "dalagnol",
+      name: "Dalagnol",
+      email: dalagnolEmail,
+      group: Admins,
+      gender: Female,
+      password: "potestas"
     });
   }
 }

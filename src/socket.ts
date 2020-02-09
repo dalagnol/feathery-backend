@@ -42,8 +42,21 @@ Server.on("connection", async function(conn: any) {
     console.log(`${user()} has sent`, message, ` to "${room}"`);
   });
 
+  conn.on("Typing", (room: string, typist: any) => {
+    Socket.Messaging.signalTyping(room, typist);
+  });
+
+  // conn.on("Joined", (room: string, user: any) => {
+  //   Socket.Messaging.signalJoin(room, user);
+  // });
+
+  // conn.on("Left", (room: string, user: any) => {
+  //   Socket.Messaging.signalLeave(room, user);
+  // });
+
   conn.on("Join", (channelName: string) => {
     conn.join(channelName);
+    Socket.Messaging.signalJoin(channelName, user());
 
     // For testing
     console.log(`${user()} entered channel ${channelName}`);
@@ -51,6 +64,7 @@ Server.on("connection", async function(conn: any) {
 
   conn.on("Exit", (channelName: string) => {
     conn.leave(channelName);
+    Socket.Messaging.signalLeave(channelName, user());
 
     // For testing
     console.log(`${user()} left channel ${channelName}`);

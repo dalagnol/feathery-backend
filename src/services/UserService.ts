@@ -1,16 +1,10 @@
-import { Group, User, Gender, Email, Phone } from "../models";
+import { User } from "../models";
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import { prepare } from "../utils";
 
-import {
-  getUserByCredential,
-  token as makeToken,
-  completely
-} from "./User/getters";
-
+import { getUserByCredential as Get, token as makeToken } from "./User/getters";
 import { updateUserById as Update } from "./User/updater";
-
 import Create from "./User/creator";
 
 const { SECRET } = process.env;
@@ -25,10 +19,7 @@ class UserService {
   public async authenticate(req: Request, res: Response): Promise<Response> {
     try {
       const { credential, password } = req.body;
-
-      let user = await getUserByCredential(credential, ["password"]);
-
-      console.log(user);
+      let user = await Get(credential, ["password"]);
 
       if (!user) {
         return res.status(401).json({

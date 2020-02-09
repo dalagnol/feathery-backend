@@ -1,12 +1,15 @@
-import { PhoneModel } from "./../../models/User/Phone";
-import { GenderModel } from "./../../models/User/Gender";
-import { EmailModel } from "./../../models/User/Email";
-import { UserModel } from "./../../models/User/User";
-import { Group, User, Gender, Email, Phone } from "../../models";
-import { Request, Response } from "express";
-import { prepare } from "../../utils";
-import { getUserByCredential, token as makeToken, completely } from "./getters";
-import jwt from "jsonwebtoken";
+import { getUserByCredential, completely } from "./getters";
+
+import {
+  User,
+  Gender,
+  Email,
+  Phone,
+  PhoneModel,
+  GenderModel,
+  EmailModel,
+  UserModel
+} from "../../models";
 
 interface UserUpdateForm {
   name?: string | null;
@@ -105,6 +108,9 @@ export async function updateUserById(id: string, data: UserUpdateForm) {
   }
 
   if (picture && typeof picture === "string") {
+    if (picture.includes("base64") && picture.includes(",")) {
+      picture = picture.substring(picture.indexOf(",") + 1);
+    }
     result = { ...result, picture };
   }
 

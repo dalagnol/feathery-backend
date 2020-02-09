@@ -1,8 +1,6 @@
 import { Group, User, Gender, Email } from "../../models";
-import { Request, Response } from "express";
 import { prepare } from "../../utils";
-import { token as makeToken, completely } from "./getters";
-import jwt from "jsonwebtoken";
+import { completely } from "./getters";
 
 const { SECRET } = process.env;
 
