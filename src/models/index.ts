@@ -10,7 +10,16 @@ import {
   PermissionModel,
   SocketModel
 } from "./System";
-import { Gender, User, GenderModel, UserModel } from "./User";
+import {
+  Gender,
+  User,
+  Email,
+  Phone,
+  GenderModel,
+  UserModel,
+  EmailModel,
+  PhoneModel
+} from "./User";
 
 export {
   Post,
@@ -23,6 +32,8 @@ export {
   Socket,
   Gender,
   User,
+  Email,
+  Phone,
   PostModel,
   TagModel,
   CountryModel,
@@ -32,5 +43,7 @@ export {
   PermissionModel,
   SocketModel,
   GenderModel,
-  UserModel
+  UserModel,
+  EmailModel,
+  PhoneModel
 };

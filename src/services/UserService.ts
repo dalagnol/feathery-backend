@@ -1,7 +1,11 @@
-import { Group, User, Gender } from "../models";
+import { User } from "../models";
 import { Request, Response } from "express";
-import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import { prepare } from "../utils";
+
+import { getUserByCredential as Get, token as makeToken } from "./User/getters";
+import { updateUserById as Update } from "./User/updater";
+import Create from "./User/creator";
 
 const { SECRET } = process.env;
 
@@ -13,47 +17,24 @@ const message = "Could not process your request at this time";
 
 class UserService {
   public async authenticate(req: Request, res: Response): Promise<Response> {
-    if (!SECRET) {
-      return res.status(500).json({ message });
-    }
-
     try {
       const { credential, password } = req.body;
-      let dbUser = await User.findOne({ identifier: credential }).populate(
-        "group"
-      );
+      let user = await Get(credential, ["password"]);
 
-      if (!dbUser) {
-        dbUser = await User.findOne({ email: credential }).populate("group");
-      }
-
-      if (!dbUser) {
-        return res.status(401).json({ message: "User does not exist" });
+      if (!user) {
+        return res.status(401).json({
+          message: "User does not exist"
+        });
       } else {
-        if (await bcrypt.compare(password, dbUser.password)) {
-          const token = jwt.sign(
-            {
-              id: dbUser._id
-            },
-            SECRET,
-            {
-              expiresIn: "60 minutes"
-            }
-          );
-
-          const user = {
-            id: dbUser._id,
-            name: dbUser.name,
-            identifier: dbUser.identifier,
-            email: dbUser.email,
-            group: dbUser.group.name
-          };
+        if (await bcrypt.compare(password, user.password)) {
+          delete user.password;
+          const token = await makeToken({ id: user.id });
 
           return res.status(200).json({ token, user });
         } else {
-          console.log(req.body.email);
-          console.log(req.body.password);
-          return res.status(401).json({ message: "Wrong password" });
+          return res.status(401).json({
+            message: "Wrong password"
+          });
         }
       }
     } catch (oof) {
@@ -63,52 +44,14 @@ class UserService {
   }
 
   public async signUp(req: Request, res: Response): Promise<Response> {
-    if (!SECRET) {
-      return res.status(500).json({ message });
-    }
-
     try {
-      let { identifier, name, email, password, gender } = req.body;
-
-      if (typeof gender === "string") {
-        gender = await Gender.findOne({ name: `${gender ? "" : "fe"}male` });
-      }
-
-      const Commons = await Group.findOne({ name: "commons" });
-
-      const Creation: any = await User.create({
-        identifier,
-        email,
-        name,
-        password,
-        gender,
-        group: Commons
-      });
-
-      const token = jwt.sign(
-        {
-          id: Creation._id
-        },
-        SECRET,
-        {
-          expiresIn: "60 minutes"
-        }
-      );
-
-      const user = {
-        id: Creation._id,
-        name: Creation.name,
-        identifier: Creation.identifier,
-        email: Creation.email,
-        group: Creation.group.name
-      };
-
+      const user = await Create(req.body);
+      const token = await makeToken({ id: user.id });
       return res.status(201).json({ token, user });
     } catch (oof) {
       const { message } = oof;
       if (message) {
         if (message.includes("duplicate")) {
-          console.log(message);
           return res.status(400).json({ message: "email is taken" });
         } else if (message.includes("is required")) {
           return res.status(405).json({ message });
@@ -123,38 +66,28 @@ class UserService {
 
   public async update(req: Request, res: Response): Promise<Response> {
     try {
-      const { name, email, password } = req.body;
-      if (password) {
-        if (password.length < 6) {
-          return res.status(400).json({
-            message: "your password must have more than six characters"
-          });
-        } else {
-          const user = await User.findByIdAndUpdate(
-            req.params.id,
-            {
-              name,
-              email,
-              password
-            },
-            { new: true }
-          );
-          return res.status(200).json({ user });
-        }
-      } else {
-        const user = await User.findByIdAndUpdate(
-          req.params.id,
-          {
-            name,
-            email
-          },
-          { new: true }
-        );
-        return res.status(200).json({ user });
+      const user = await Update(req.params.id, req.body);
+
+      if (!user) {
+        return res.status(500).json({
+          message: "oops"
+        });
       }
+
+      return res.status(200).json({
+        id: user._id,
+        name: user.name,
+        identifier: user.identifier,
+        picture: user.picture,
+        group: prepare(user.group),
+        email: prepare(user.email),
+        gender: prepare(user.gender),
+        phone: prepare(user.phone)
+      });
     } catch (oof) {
-      const { message } = oof;
-      return res.status(500).json({ message });
+      return res.status(500).json({
+        message: "oops"
+      });
     }
   }
 

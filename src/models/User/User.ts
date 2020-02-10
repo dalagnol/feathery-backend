@@ -1,5 +1,7 @@
 import { GroupModel } from "../System/Group";
 import { GenderModel } from "./Gender";
+import { EmailModel } from "./Email";
+import { PhoneModel } from "./Phone";
 import { Document, Schema, Model, model } from "mongoose";
 import bcrypt from "bcryptjs";
 
@@ -7,10 +9,12 @@ export interface UserModel extends Document {
   _id: any;
   identifier: string;
   name: string;
-  email: string;
+  email: EmailModel;
+  phone?: PhoneModel;
   password: string;
   gender: GenderModel;
   active: boolean;
+  picture?: string;
   group: GroupModel;
   createdAt: Date;
   updatedAt: Date;
@@ -19,7 +23,7 @@ export interface UserModel extends Document {
 export interface AuthorModel {
   _id: any;
   identifier: string;
-  email: string;
+  email: EmailModel;
   name: string;
   type: string;
 }
@@ -27,7 +31,7 @@ export interface AuthorModel {
 export interface OwnerModel {
   _id: any;
   identifier: string;
-  email: string;
+  email: EmailModel;
   name: string;
   type: string;
 }
@@ -37,15 +41,27 @@ const UserSchema = new Schema(
     identifier: {
       type: String,
       required: true,
-      unique: true
+      unique: true,
+      minlength: 1,
+      maxlength: 100
     },
     name: {
       type: String,
-      required: true
+      required: true,
+      minlength: 2,
+      maxlength: 100
     },
     email: {
-      type: String,
+      type: Schema.Types.ObjectId,
+      ref: "Email",
+      unique: true,
       required: true,
+      minlength: 5,
+      maxlength: 120
+    },
+    phone: {
+      type: Schema.Types.ObjectId,
+      ref: "Phone",
       unique: true
     },
     gender: {
@@ -63,9 +79,14 @@ const UserSchema = new Schema(
       ref: "Group",
       required: true
     },
+    picture: {
+      type: String
+    },
     password: {
       type: String,
-      required: true
+      required: true,
+      minlength: 6,
+      maxlength: 120
     }
   },
   {
@@ -79,3 +100,8 @@ UserSchema.post("save", async (doc: UserModel) => {
 });
 
 export const User: Model<UserModel> = model<UserModel>("User", UserSchema);
+
+User.collection.createIndex(["phone"], {
+  partialFilterExpression: { phone: { $exists: true } },
+  unique: true
+});
