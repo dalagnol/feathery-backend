@@ -5,6 +5,7 @@ import { prepare } from "../utils";
 
 import { getUserByCredential as Get, token as makeToken } from "./User/getters";
 import { updateUserById as Update } from "./User/updater";
+import { sendPswResetEmail } from "./User/sender";
 import Create from "./User/creator";
 
 const { SECRET } = process.env;
@@ -88,6 +89,24 @@ class UserService {
       return res.status(500).json({
         message: "oops"
       });
+    }
+  }
+
+  public async sendPswResetEmail(
+    req: Request,
+    res: Response
+  ): Promise<Response> {
+    try {
+      const userEmail = req.body.email;
+
+      const email = sendPswResetEmail(userEmail);
+
+      return res
+        .status(200)
+        .json({ email, message: `email has been sent to ${email}` });
+    } catch (oof) {
+      console.log(oof);
+      return res.status(500).json({ message: "oops" });
     }
   }
 
