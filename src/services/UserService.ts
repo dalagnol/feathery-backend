@@ -5,10 +5,10 @@ import { prepare } from "../utils";
 
 import { getUserByCredential as Get, token as makeToken } from "./User/getters";
 import { updateUserById as Update } from "./User/updater";
-import { sendPswResetEmail } from "./User/sender";
+import { sendEmail } from "../utils/sender";
 import Create from "./User/creator";
 
-const { SECRET } = process.env;
+const { SECRET, GMAILUSER, HOST } = process.env;
 
 if (!SECRET) {
   throw new Error("Missing SECRET in process environment");
@@ -99,7 +99,21 @@ class UserService {
     try {
       const userEmail = req.body.email;
 
-      const email = sendPswResetEmail(userEmail);
+      const token = await makeToken({ email: userEmail });
+      const link = `${HOST}:3000/reset/${token}`;
+      const output = `
+        <h3>Click the link below to reset your password:</h3>
+        <a href=${link}>Reset password</a>
+      `;
+
+      const emailForm = {
+        from: '"Feather" <GMAILUSER>',
+        subject: "Password Reset",
+        output: output
+      };
+
+      const email = sendEmail(userEmail, emailForm);
+      console.log(`response: ${email}`);
 
       return res
         .status(200)

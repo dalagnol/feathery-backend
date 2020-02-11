@@ -1,19 +1,24 @@
-import { Email } from "../../models";
+import { Email } from "../models";
 import nodemailer from "nodemailer";
+import { prepare } from "./";
 
-const { GMAILUSER, GMAILPSW, HOST } = process.env;
+const { GMAILUSER, GMAILPSW } = process.env;
 
-export async function sendPswResetEmail(email: string) {
+interface EmailForm {
+  from: string;
+  output: string;
+  subject: string;
+  text?: string;
+}
+
+export async function sendEmail(email: string, data: EmailForm) {
   if (email.includes("@") && email.includes(".")) {
     const [address, domain] = email.split("@");
-    const EmailAdress: any = await Email.findOne({ address, domain });
+    let EmailAdress: any = await Email.findOne({ address, domain });
 
     if (EmailAdress) {
-      const link = `${HOST}`;
-      const output = `
-        <h3>Click the link below to reset your password:</h3>
-        <a href=${link}>Reset password</a>
-      `;
+      EmailAdress = prepare(EmailAdress);
+      let { from, output, subject, text } = data;
 
       let transporter = nodemailer.createTransport({
         service: "gmail",
@@ -27,11 +32,11 @@ export async function sendPswResetEmail(email: string) {
       });
 
       let info = await transporter.sendMail({
-        from: '"Feathery ➳" <GMAILUSER>',
+        from: from,
         to: EmailAdress,
-        subject: "Password Reset",
-        text: "Hello world?",
-        html: "<b>Hello world?</b>"
+        subject: subject,
+        text: text,
+        html: output
       });
 
       // console.log("Message sent: %s", info.messageId);
