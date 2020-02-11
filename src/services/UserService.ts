@@ -92,7 +92,7 @@ class UserService {
     }
   }
 
-  public async sendPswResetEmail(
+  public async sendResetPswEmail(
     req: Request,
     res: Response
   ): Promise<Response> {
@@ -107,17 +107,14 @@ class UserService {
       `;
 
       const emailForm = {
-        from: '"Feather" <GMAILUSER>',
+        from: '"Feathery ➳" <GMAILUSER>',
         subject: "Password Reset",
         output: output
       };
 
-      const email = sendEmail(userEmail, emailForm);
-      console.log(`response: ${email}`);
+      sendEmail(userEmail, emailForm);
 
-      return res
-        .status(200)
-        .json({ email, message: `email has been sent to ${email}` });
+      return res.status(200).json({ message: `email has been sent` });
     } catch (oof) {
       console.log(oof);
       return res.status(500).json({ message: "oops" });
