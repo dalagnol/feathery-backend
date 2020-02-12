@@ -61,7 +61,7 @@ export default async function() {
       code: "sendemail",
       name: "Send Email",
       description: "Allows the group to send emails to other users",
-      methods: "put",
+      methods: "post",
       uri: "/reset"
     });
 
