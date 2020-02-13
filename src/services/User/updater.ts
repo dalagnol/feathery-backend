@@ -1,4 +1,5 @@
 import { getUserByCredential, completely } from "./getters";
+import bcrypt from "bcryptjs";
 
 import {
   User,
@@ -46,6 +47,7 @@ export async function updateUserByCredential(
   }
 
   if (password && typeof password === "string") {
+    password = await bcrypt.hash(password, 8);
     result = { ...result, password };
   }
 
@@ -89,7 +91,10 @@ export async function updateUserByCredential(
     }
   }
 
-  return await User.findByIdAndUpdate(user._id, result, { new: true });
+  console.log(result);
+  console.log(user);
+
+  return await User.findByIdAndUpdate(user.id, result, { new: true });
 }
 
 export async function updateUserById(id: string, data: UserUpdateForm) {
@@ -115,6 +120,7 @@ export async function updateUserById(id: string, data: UserUpdateForm) {
   }
 
   if (password && typeof password === "string") {
+    password = await bcrypt.hash(password, 8);
     result = { ...result, password };
   }
 

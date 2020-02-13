@@ -128,10 +128,10 @@ class UserService {
     try {
       const token = req.params.token;
       const decode: any = await promisify(jwt.verify)(token, SECRET!);
-
-      console.log(decode, decode.email);
-
+ 
       const user = await UpdateByCredential(decode.email, req.body);
+
+      console.log(user);
 
       return res.status(200).json({ user });
     } catch (oof) {

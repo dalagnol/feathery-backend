@@ -69,8 +69,8 @@ export default async function() {
       code: "resetpsw",
       name: "Reset Psw",
       description: "Allows the group to reset their password",
-      method: "put",
-      uri: "reset/:token"
+      methods: "put",
+      uri: "/reset/:token"
     })
 
     const PingAccess = await Permission.create({
