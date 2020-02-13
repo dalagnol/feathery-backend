@@ -6,4 +6,5 @@ export default function userRoutes(routes: any) {
   routes.put("/user/:id", UserService.update);
   routes.delete("/user/:id", UserService.deleteUser);
   routes.post("/send", UserService.sendResetPswEmail);
+  routes.put("/reset/:token", UserService.resetPsw);
 }

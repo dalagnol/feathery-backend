@@ -65,6 +65,14 @@ export default async function() {
       uri: "/send"
     });
 
+    const ResetPsw = await Permission.create({
+      code: "resetpsw",
+      name: "Reset Psw",
+      description: "Allows the group to reset their password",
+      method: "put",
+      uri: "reset/:token"
+    })
+
     const PingAccess = await Permission.create({
       code: "pingtest",
       name: "Ping Test",
@@ -95,7 +103,7 @@ export default async function() {
 
     const Nobody = await Group.create({
       name: "nobody",
-      permissions: [LoginAccess, SignUpAccess, SendEmail, PingAccess]
+      permissions: [LoginAccess, SignUpAccess, SendEmail, PingAccess, ResetPsw]
     });
 
     const rootEmail = await Email.create({

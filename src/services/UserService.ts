@@ -2,13 +2,16 @@ import { User } from "../models";
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import { prepare } from "../utils";
+import { promisify } from "util";
+
+import jwt from "jsonwebtoken";
 
 import { getUserByCredential as Get, token as makeToken } from "./User/getters";
-import { updateUserById as Update } from "./User/updater";
+import { updateUserById as UpdateById, updateUserByCredential as UpdateByCredential } from "./User/updater";
 import { sendEmail } from "../utils/sender";
 import Create from "./User/creator";
 
-const { SECRET, GMAILUSER, HOST } = process.env;
+const { SECRET, HOST } = process.env;
 
 if (!SECRET) {
   throw new Error("Missing SECRET in process environment");
@@ -67,7 +70,7 @@ class UserService {
 
   public async update(req: Request, res: Response): Promise<Response> {
     try {
-      const user = await Update(req.params.id, req.body);
+      const user = await UpdateById(req.params.id, req.body);
 
       if (!user) {
         return res.status(500).json({
@@ -118,6 +121,21 @@ class UserService {
     } catch (oof) {
       console.log(oof);
       return res.status(500).json({ message: "oops" });
+    }
+  }
+
+  public async resetPsw(req: Request, res: Response): Promise<Response> {
+    try {
+      const token = req.params.token;
+      const decode: any = await promisify(jwt.verify)(token, SECRET!);
+
+      console.log(decode, decode.email);
+
+      const user = await UpdateByCredential(decode.email, req.body);
+
+      return res.status(200).json({ user });
+    } catch (oof) {
+      return res.status(401).json({ message: "expired token" });
     }
   }
 
