@@ -62,7 +62,7 @@ export default async function() {
       name: "Send Email",
       description: "Allows the group to send emails to other users",
       methods: "post",
-      uri: "/reset"
+      uri: "/send"
     });
 
     const PingAccess = await Permission.create({
@@ -95,7 +95,7 @@ export default async function() {
 
     const Nobody = await Group.create({
       name: "nobody",
-      permissions: [LoginAccess, SignUpAccess, PingAccess]
+      permissions: [LoginAccess, SignUpAccess, SendEmail, PingAccess]
     });
 
     const rootEmail = await Email.create({
