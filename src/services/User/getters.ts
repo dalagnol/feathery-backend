@@ -56,6 +56,6 @@ export async function getUserByCredential(
   return result;
 }
 
-export async function token(data: any, expiry = "60 minutes") {
+export async function token(data: any, expiry = "5 minutes") {
   return jwt.sign(data, String(SECRET), { expiresIn: expiry });
 }

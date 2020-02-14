@@ -62,7 +62,7 @@ export default async function() {
       name: "Send Email",
       description: "Allows the group to send emails to other users",
       methods: "post",
-      uri: "/send"
+      uri: "/user/mail"
     });
 
     const ResetPsw = await Permission.create({
@@ -70,8 +70,16 @@ export default async function() {
       name: "Reset Psw",
       description: "Allows the group to reset their password",
       methods: "put",
-      uri: "/reset/:token"
-    })
+      uri: "/user/password/:token"
+    });
+
+    const ValidateToken = await Permission.create({
+      code: "validatetoken",
+      name: "Validate Token",
+      description: "Allows the group to validate a token",
+      methods: "get",
+      uri: "/token/:token"
+    });
 
     const PingAccess = await Permission.create({
       code: "pingtest",
@@ -103,7 +111,7 @@ export default async function() {
 
     const Nobody = await Group.create({
       name: "nobody",
-      permissions: [LoginAccess, SignUpAccess, SendEmail, PingAccess, ResetPsw]
+      permissions: [LoginAccess, SignUpAccess, SendEmail, PingAccess, ResetPsw, ValidateToken]
     });
 
     const rootEmail = await Email.create({

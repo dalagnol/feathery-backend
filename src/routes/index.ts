@@ -7,6 +7,7 @@ import Delayer from "../middleware/Delayer";
 import userRoutes from "./users";
 import postRoutes from "./post";
 import testRoutes from "./test";
+import tokenRoutes from "./token";
 
 const routes = Router();
 
@@ -18,5 +19,6 @@ testRoutes(routes);
 userRoutes(routes);
 postRoutes(routes);
 testRoutes(routes);
+tokenRoutes(routes);
 
 export default routes;

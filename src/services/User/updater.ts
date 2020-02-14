@@ -91,9 +91,6 @@ export async function updateUserByCredential(
     }
   }
 
-  console.log(result);
-  console.log(user);
-
   return await User.findByIdAndUpdate(user.id, result, { new: true });
 }
 

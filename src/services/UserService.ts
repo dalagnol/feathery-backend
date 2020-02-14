@@ -95,7 +95,7 @@ class UserService {
     }
   }
 
-  public async sendResetPswEmail(
+  public async mailResetPsw(
     req: Request,
     res: Response
   ): Promise<Response> {
@@ -120,7 +120,7 @@ class UserService {
       return res.status(200).json({ message: `email has been sent` });
     } catch (oof) {
       console.log(oof);
-      return res.status(500).json({ message: "oops" });
+      return res.status(500).json({ message: "invalid email" });
     }
   }
 
@@ -131,15 +131,13 @@ class UserService {
  
       const user = await UpdateByCredential(decode.email, req.body);
 
-      console.log(user);
-
       return res.status(200).json({ user });
     } catch (oof) {
       return res.status(401).json({ message: "expired token" });
     }
   }
 
-  public async deleteUser(req: Request, res: Response): Promise<Response> {
+  public async delete(req: Request, res: Response): Promise<Response> {
     try {
       await User.findByIdAndRemove(req.params.id);
       return res.status(200).json({ message: "User was deleted" });
